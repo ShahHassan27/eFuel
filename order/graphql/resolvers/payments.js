@@ -18,7 +18,8 @@ module.exports = {
 			const order = await Order.findById(orderId);
 
 			const newPayment = new Payment({
-				body
+				status: body,
+				order
 			});
 
 			const paymentStatus = await newPayment.save();
