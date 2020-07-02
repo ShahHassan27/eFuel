@@ -1,4 +1,5 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
+const { createApolloFetch } = require('apollo-fetch');
 
 const Order = require('../../models/Order');
 const User = require('../../models/User');
@@ -30,6 +31,7 @@ module.exports = {
 	Mutation: {
 		async createOrder(_, { item }, context) {
 			const user = checkAuth(context);
+
 			const newOrder = new Order({
 				item,
 				status: 'Not Confirmed',
@@ -39,8 +41,32 @@ module.exports = {
 			});
 			const order = await newOrder.save();
 
+			const fetch = createApolloFetch({
+				uri: 'http://localhost:5001/'
+			});
+
+			const fetchAsync = async () => {
+				await fetch({
+					query: `mutation Payment($orderId: ID!) {
+				payment(orderId: $orderId) {
+				status
+				}
+			}`,
+					variables: { orderId: order._id }
+				}).then((res) => {
+					const result = res.data.payment.status;
+					statusUpdate = () => result;
+				});
+			};
+
+			await fetchAsync();
+
+			const result2 = await statusUpdate();
+			console.log('This is working ' + result2);
+
 			const owner = await User.findById(user.id);
 			await owner.orders.unshift({
+				itemId: order._id,
 				item: order.item,
 				username: order.username,
 				createdAt: new Date().toISOString()

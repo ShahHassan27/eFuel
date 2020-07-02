@@ -16,11 +16,7 @@ module.exports = gql`
 		user: String!
 		username: String!
 		status: String!
-	}
-
-	type Payment {
-		status: String!
-		order: String!
+		createdAt: String!
 	}
 
 	input RegisterInput {
@@ -42,10 +38,5 @@ module.exports = gql`
 		login(username: String!, password: String!): User!
 		createOrder(item: String!): Order!
 		deleteOrder(orderId: ID!): String!
-		payment(orderId: ID!, body: String!): Payment!
-	}
-
-	type Subscription {
-		newPayment: Order!
 	}
 `;
